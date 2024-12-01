@@ -70,32 +70,34 @@ def validate_and_update_status(event=None):
 
 def validate_and_update_qualities():
     """Validate URL and update the dropdown with available qualities."""
-    url = url_entry.get().strip()
 
-    if not url.startswith("http") or "youtube.com" not in url and "youtu.be" not in url:
-        status_label.config(text="Invalid URL. Please enter a valid YouTube link.", fg="red")
-        quality_dropdown['values'] = []
-        quality_dropdown.set("")
-        return
+    if check_internet_connection():
+    
+        url = url_entry.get().strip()
 
-    qualities = get_available_qualities(url)
-    if qualities:
-        quality_dropdown['values'] = qualities
-        quality_dropdown.set(qualities[-1])  # Default to the lowest quality
-        status_label.config(text="Qualities updated. Ready to download.", fg="green")
+        if not url.startswith("http") or "youtube.com" not in url and "youtu.be" not in url:
+            status_label.config(text="Invalid URL. Please enter a valid YouTube link.", fg="red")
+            quality_dropdown['values'] = []
+            quality_dropdown.set("")
+            return
+        
+        qualities = get_available_qualities(url)
+        if qualities:
+            quality_dropdown['values'] = qualities
+            quality_dropdown.set(qualities[-1])  # Default to the lowest quality
+            status_label.config(text="Qualities updated. Ready to download.", fg="green")
+        else:
+            quality_dropdown['values'] = []
+            quality_dropdown.set("")
+            status_label.config(text="No qualities available for this URL.", fg="red")
     else:
-        quality_dropdown['values'] = []
-        quality_dropdown.set("")
-        status_label.config(text="No qualities available for this URL.", fg="red")
-
+        status_label.config(text="offline", fg="red")
 
 def download_video(url, destination_folder, progress_callback=None, completion_callback=None):
     if not check_ffmpeg():
         return
 
-    if not check_internet_connection():
-        messagebox.showerror("No Internet", "No internet connection. Please check your connection and try again.")
-        return
+
 
     os.makedirs(destination_folder, exist_ok=True)
 
